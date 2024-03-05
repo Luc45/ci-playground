@@ -50,9 +50,11 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         $phpIni = (php --ini | Select-String 'Loaded Configuration File').Line.Split(' ')[-1]
-        "curl.cainfo=`"" | Out-File -FilePath $phpIni -Append
-        "openssl.cafile=`"" | Out-File -FilePath $phpIni -Append
-        echo "OPENSSL_CONF=" | Out-File -FilePath $GITHUB_ENV -Append
+        if ($phpIni -ne $null) {
+          "curl.cainfo=`"" | Out-File -FilePath $phpIni -Append
+          "openssl.cafile=`"" | Out-File -FilePath $phpIni -Append
+        }
+        echo "OPENSSL_CONF=" | Out-File -FilePath $env:GITHUB_ENV -Append
       shell: pwsh
     
     - name: Remove Custom CA Configuration (Linux/Mac)
