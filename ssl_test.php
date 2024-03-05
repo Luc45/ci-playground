@@ -1,10 +1,10 @@
 <?php
 
-echo "CAFIle Original:\n";
+echo "CAFile:\n";
 var_dump(ini_get('openssl.cafile'));
-ini_set('openssl.cafile', '');
-echo "CAFIle Removed:\n";
-var_dump(ini_get('openssl.cafile'));
+
+echo "CAPath:\n";
+var_dump(ini_get('openssl.capath'));
 
 function makeCurlRequest($url, $caPath = null) {
     $ch = curl_init();
