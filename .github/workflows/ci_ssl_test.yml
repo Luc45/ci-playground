@@ -65,6 +65,27 @@ jobs:
         echo "openssl.cafile=" >> "$phpIni"
         echo "OPENSSL_CONF=" >> "$GITHUB_ENV"
       shell: bash
+    
+    - name: Print CA certificate file
+      run: |
+        if [ -f "$PHP_CAFILE" ]; then
+          cat "$PHP_CAFILE"
+        else
+          echo "CA certificate file not found: $PHP_CAFILE"
+        fi
+      env:
+        PHP_CAFILE: ${{ runner.os == 'Windows' && 'C:\tools\php\ssl\cacert.pem' || '/usr/local/etc/ssl/certs/ca-certificates.crt' }}
+    
+    - name: Delete CA certificate file
+      run: |
+        if [ -f "$PHP_CAFILE" ]; then
+          rm "$PHP_CAFILE"
+          echo "Deleted CA certificate file: $PHP_CAFILE"
+        else
+          echo "CA certificate file not found: $PHP_CAFILE"
+        fi
+      env:
+        PHP_CAFILE: ${{ runner.os == 'Windows' && 'C:\tools\php\ssl\cacert.pem' || '/usr/local/etc/ssl/certs/ca-certificates.crt' }}
 
     - name: Run SSL Test Script
       env:
