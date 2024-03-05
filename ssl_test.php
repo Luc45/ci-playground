@@ -96,6 +96,16 @@ if ($isWindows) {
         exit(1);
     }
 
+    // Verify the downloaded CA certificate exists
+    if (!file_exists($caFile)) {
+        echo "Downloaded CA certificate file does not exist\n";
+        exit(1);
+    }
+
+    // Print downloaded CA certificate contents for debugging
+    echo "Downloaded CA certificate:\n";
+    echo file_get_contents($caFile), "\n";
+
     // Retry cURL request with downloaded CA certificate path
     $response = makeCurlRequest($url, __DIR__ . DIRECTORY_SEPARATOR . $caFile);
     unlink($caFile); // Delete downloaded CA certificate
