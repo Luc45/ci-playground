@@ -1,6 +1,6 @@
 <?php
 
-ini_set('openssl.cafile=');
+ini_set('openssl.cafile', '');
 
 function makeCurlRequest($url, $caPath = null) {
     $ch = curl_init();
