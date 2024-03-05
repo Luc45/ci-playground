@@ -1,6 +1,7 @@
 name: SSL Test with PHP
 
-on: [push]
+on: 
+  workflow_dispatch:
 
 jobs:
   test:
