@@ -52,6 +52,9 @@ jobs:
         del "C:\tools\php\ssl\cacert.pem"
       if: runner.os == 'Windows'
 
+    - name: PHP -i
+      run: php -i
+
     - name: Run SSL Test Script
       env:
         OPENSSL_CONF: ''
