@@ -58,4 +58,4 @@ jobs:
     - name: Run SSL Test Script
       env:
         OPENSSL_CONF: ''
-      run: php -d openssl.cafile='' ssl_test.php ${{ matrix.should_fail }}
+      run: php -d openssl.cafile='' -d curl.cainfo='' ssl_test.php ${{ matrix.should_fail }}
