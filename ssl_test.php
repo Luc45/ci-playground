@@ -18,7 +18,7 @@ function makeCurlRequest($url, $caPath = null) {
     return ['output' => $output, 'error' => $error];
 }
 
-$url = "https://your-https-url.com";
+$url = "https://curl.se";
 
 // First attempt without CA certificate
 $response = makeCurlRequest($url);
