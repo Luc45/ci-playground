@@ -67,7 +67,7 @@ jobs:
       shell: bash
     
     - name: Print CA certificate file
-      run: if exist "%PHP_CAFILE%" (type "%PHP_CAFILE%") else (echo CA certificate file not found: %PHP_CAFILE%)
+      run: if exist "%PHP_CAFILE%" (type "%PHP_CAFILE%") else (echo CA certificate file not found)
       shell: cmd
       if: runner.os == 'Windows'
       env:
