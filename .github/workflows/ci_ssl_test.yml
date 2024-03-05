@@ -46,11 +46,25 @@ jobs:
         extensions: curl
         coverage: none
 
-    - name: Remove Custom CA Configuration
+    - name: Remove Custom CA Configuration (Windows)
+      if: runner.os == 'Windows'
       run: |
-        echo "curl.cainfo=" >> $php_ini
-        echo "openssl.cafile=" >> $php_ini
-        echo "OPENSSL_CONF=" >> $GITHUB_ENV
+        $phpIni = (php --ini | Select-String 'Loaded Configuration File').Line.Split(' ')[-1]
+        "curl.cainfo=`"" | Out-File -FilePath $phpIni -Append
+        "openssl.cafile=`"" | Out-File -FilePath $phpIni -Append
+        echo "OPENSSL_CONF=" | Out-File -FilePath $GITHUB_ENV -Append
+      shell: pwsh
+    
+    - name: Remove Custom CA Configuration (Linux/Mac)
+      if: runner.os != 'Windows'
+      run: |
+        phpIni=$(php --ini | grep 'Loaded Configuration File' | awk '{print $NF}')
+        echo "curl.cainfo=" >> "$phpIni"
+        echo "openssl.cafile=" >> "$phpIni"
+        echo "OPENSSL_CONF=" >> "$GITHUB_ENV"
+      shell: bash
 
     - name: Run SSL Test Script
+      env:
+        OPENSSL_CONF: ''
       run: php ssl_test.php ${{ matrix.should_fail }}
