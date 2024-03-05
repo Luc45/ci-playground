@@ -1,5 +1,9 @@
 <?php
 
+if (DIRECTORY_SEPARATOR === '\\') {
+    ini_set('openssl.cafile=');
+}
+
 function makeCurlRequest($url, $caPath = null) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
