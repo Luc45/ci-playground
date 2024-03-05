@@ -1,5 +1,7 @@
 <?php
 
+var_dump(ini_get('openssl.cafile'));
+
 ini_set('openssl.cafile', '');
 
 function makeCurlRequest($url, $caPath = null) {
