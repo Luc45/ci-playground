@@ -6,20 +6,6 @@ var_dump(ini_get('openssl.cafile'));
 echo "CAPath:\n";
 var_dump(ini_get('openssl.capath'));
 
-function downloadCACertificate($url, $destination) {
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $data = curl_exec($ch);
-    curl_close($ch);
-
-    if ($data === false) {
-        return false;
-    }
-
-    return file_put_contents($destination, $data) !== false;
-}
-
 function makeCurlRequest($url, $caPath = null) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -89,32 +75,16 @@ if ($response['error']) {
 
 // Download and retry on Windows
 if ($isWindows) {
-    // Download CA certificate
-    $caFile = 'cacert.pem';
-    if (!downloadCACertificate('http://curl.haxx.se/ca/cacert.pem', $caFile)) {
-        echo "Failed to download CA certificate\n";
-        exit(1);
-    }
-
-    // Verify the downloaded CA certificate exists
-    if (!file_exists($caFile)) {
-        echo "Downloaded CA certificate file does not exist\n";
-        exit(1);
-    }
-
-    // Print downloaded CA certificate contents for debugging
-    echo "Downloaded CA certificate:\n";
-    echo file_get_contents($caFile), "\n";
-
-    // Retry cURL request with downloaded CA certificate path
-    $response = makeCurlRequest($url, __DIR__ . DIRECTORY_SEPARATOR . $caFile);
-    unlink($caFile); // Delete downloaded CA certificate
-
+    // Use provided CA certificate file
+    $caFile = __DIR__ . '/cacert.pem';
+    
+    // Retry cURL request with provided CA certificate file
+    $response = makeCurlRequest($url, $caFile);
     if ($response['error']) {
-        echo "Request failed with downloaded CA certificate: " . $response['error'] . PHP_EOL;
+        echo "Request failed with provided CA certificate: " . $response['error'] . PHP_EOL;
         exit(1);
     } else {
-        echo "Request succeeded with downloaded CA certificate" . PHP_EOL;
+        echo "Request succeeded with provided CA certificate" . PHP_EOL;
     }
 }
 ?>
