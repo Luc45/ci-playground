@@ -57,30 +57,54 @@ function makeCurlRequest($url, $caPath = null) {
 $url = "https://qit.woo.com";
 $shouldFail = isset($argv[1]) ? $argv[1] === 'true' : false;
 
-// Download CA certificate
-$caFile = 'cacert.pem';
-if (!downloadCACertificate('http://curl.haxx.se/ca/cacert.pem', $caFile)) {
-    echo "Failed to download CA certificate\n";
-    exit(1);
-}
+// Detect OS
+$isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
-// Retry cURL request with downloaded CA certificate
-$response = makeCurlRequest($url, $caFile);
-unlink($caFile); // Delete downloaded CA certificate
-
+// First attempt without CA certificate
+$response = makeCurlRequest($url);
 if ($response['error']) {
-    if (!$shouldFail) {
-        echo "Request unexpectedly failed without CA certificate: " . $response['error'] . PHP_EOL;
-        exit(1);
+    if ($isWindows) {
+        if (!$shouldFail) {
+            echo "Request unexpectedly failed without CA certificate: " . $response['error'] . PHP_EOL;
+            exit(1);
+        } else {
+            echo "Request correctly failed without CA certificate (expected on Windows)" . PHP_EOL;
+        }
     } else {
-        echo "Request correctly failed without CA certificate (expected on Windows)" . PHP_EOL;
+        echo "Request failed without CA certificate (expected on Linux and macOS)" . PHP_EOL;
     }
 } else {
     if ($shouldFail) {
-        echo "Request unexpectedly succeeded without CA certificate on Windows" . PHP_EOL;
-        exit(1);
+        if ($isWindows) {
+            echo "Request unexpectedly succeeded without CA certificate on Windows" . PHP_EOL;
+            exit(1);
+        } else {
+            echo "Request unexpectedly succeeded without CA certificate (expected on Linux and macOS)" . PHP_EOL;
+            exit(1);
+        }
     } else {
         echo "Request succeeded without CA certificate (expected on Linux and macOS)" . PHP_EOL;
+    }
+}
+
+// Download and retry on Windows
+if ($isWindows) {
+    // Download CA certificate
+    $caFile = 'cacert.pem';
+    if (!downloadCACertificate('http://curl.haxx.se/ca/cacert.pem', $caFile)) {
+        echo "Failed to download CA certificate\n";
+        exit(1);
+    }
+
+    // Retry cURL request with downloaded CA certificate
+    $response = makeCurlRequest($url, __DIR__ . DIRECTORY_SEPARATOR . $caFile);
+    unlink($caFile); // Delete downloaded CA certificate
+
+    if ($response['error']) {
+        echo "Request failed with downloaded CA certificate: " . $response['error'] . PHP_EOL;
+        exit(1);
+    } else {
+        echo "Request succeeded with downloaded CA certificate" . PHP_EOL;
     }
 }
 ?>
