@@ -1,0 +1,20 @@
+name: SSL Test with PHP
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up PHP 8.3
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: curl
+        coverage: none
+
+    - name: Run SSL Test Script
+      run: php ssl_test.php
