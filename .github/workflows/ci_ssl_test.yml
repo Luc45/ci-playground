@@ -45,26 +45,6 @@ jobs:
         php-version: ${{ matrix.php }}
         extensions: curl
         coverage: none
-
-    - name: Remove Custom CA Configuration (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        $phpIni = (php --ini | Select-String 'Loaded Configuration File').Line.Split(' ')[-1]
-        if ($phpIni -ne $null) {
-          "curl.cainfo=`"" | Out-File -FilePath $phpIni -Append
-          "openssl.cafile=`"" | Out-File -FilePath $phpIni -Append
-        }
-        echo "OPENSSL_CONF=" | Out-File -FilePath $env:GITHUB_ENV -Append
-      shell: pwsh
-    
-    - name: Remove Custom CA Configuration (Linux/Mac)
-      if: runner.os != 'Windows'
-      run: |
-        phpIni=$(php --ini | grep 'Loaded Configuration File' | awk '{print $NF}')
-        echo "curl.cainfo=" >> "$phpIni"
-        echo "openssl.cafile=" >> "$phpIni"
-        echo "OPENSSL_CONF=" >> "$GITHUB_ENV"
-      shell: bash
     
     - name: Print and delete CA certificate file
       run: |
@@ -75,4 +55,4 @@ jobs:
     - name: Run SSL Test Script
       env:
         OPENSSL_CONF: ''
-      run: php ssl_test.php ${{ matrix.should_fail }}
+      run: php -d openssl.cafile='' ssl_test.php ${{ matrix.should_fail }}
