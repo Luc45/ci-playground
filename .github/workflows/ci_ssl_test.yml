@@ -66,19 +66,11 @@ jobs:
         echo "OPENSSL_CONF=" >> "$GITHUB_ENV"
       shell: bash
     
-    - name: Print CA certificate file
-      run: if exist "%PHP_CAFILE%" (type "%PHP_CAFILE%") else (echo CA certificate file not found)
-      shell: cmd
+    - name: Print and delete CA certificate file
+      run: |
+        type "C:\tools\php\ssl\cacert.pem"
+        del "C:\tools\php\ssl\cacert.pem"
       if: runner.os == 'Windows'
-      env:
-        PHP_CAFILE: 'C:\tools\php\ssl\cacert.pem'
-    
-    - name: Delete CA certificate file
-      run: if exist "%PHP_CAFILE%" (del "%PHP_CAFILE%" && echo Deleted CA certificate file) else (echo CA certificate file not found)
-      shell: cmd
-      if: runner.os == 'Windows'
-      env:
-        PHP_CAFILE: 'C:\tools\php\ssl\cacert.pem'
 
     - name: Run SSL Test Script
       env:
