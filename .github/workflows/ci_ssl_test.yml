@@ -10,10 +10,28 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+            php: 8.3
             should_fail: false
           - os: macos-latest
+            php: 8.3
             should_fail: false
           - os: windows-latest
+            php: 7.2
+            should_fail: true
+          - os: windows-latest
+            php: 7.3
+            should_fail: true
+          - os: windows-latest
+            php: 7.4
+            should_fail: true
+          - os: windows-latest
+            php: 8.0
+            should_fail: true
+          - os: windows-latest
+            php: 8.1
+            should_fail: true
+          - os: windows-latest
+            php: 8.2
             should_fail: true
 
     steps:
@@ -23,7 +41,7 @@ jobs:
     - name: Set up PHP 8.3
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.3'
+        php-version: ${{ matrix.php }}
         extensions: curl
         coverage: none
 
