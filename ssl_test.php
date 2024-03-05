@@ -7,13 +7,29 @@ function makeCurlRequest($url, $caPath = null) {
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
+    // Set verbose mode
+    curl_setopt($ch, CURLOPT_VERBOSE, true);
+
+    // Set output file for verbose information
+    $verbose = fopen('php://temp', 'w+');
+    curl_setopt($ch, CURLOPT_STDERR, $verbose);
+
     if ($caPath) {
         curl_setopt($ch, CURLOPT_CAINFO, $caPath);
     }
 
     $output = curl_exec($ch);
     $error = curl_error($ch);
+
+    // Rewind verbose output
+    rewind($verbose);
+    $verboseLog = stream_get_contents($verbose);
+
+    // Close cURL handle
     curl_close($ch);
+
+    // Output verbose information
+    echo "Verbose information:\n", $verboseLog, "\n";
 
     return ['output' => $output, 'error' => $error];
 }
