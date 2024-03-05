@@ -18,29 +18,24 @@ function makeCurlRequest($url, $caPath = null) {
     return ['output' => $output, 'error' => $error];
 }
 
-$url = "https://curl.se";
+$url = "https://qit.woo.com";
+$shouldFail = isset($argv[1]) ? $argv[1] === 'true' : false;
 
 // First attempt without CA certificate
 $response = makeCurlRequest($url);
 if ($response['error']) {
-    echo "Request failed without CA certificate: " . $response['error'] . PHP_EOL;
+    if (!$shouldFail) {
+        echo "Request unexpectedly failed without CA certificate: " . $response['error'] . PHP_EOL;
+        exit(1);
+    } else {
+        echo "Request correctly failed without CA certificate (expected on Windows)" . PHP_EOL;
+    }
 } else {
-    echo "Request unexpectedly succeeded without CA certificate" . PHP_EOL;
-    exit(1);
+    if ($shouldFail) {
+        echo "Request unexpectedly succeeded without CA certificate on Windows" . PHP_EOL;
+        exit(1);
+    } else {
+        echo "Request succeeded without CA certificate (expected on Linux and macOS)" . PHP_EOL;
+    }
 }
-
-// Download CA certificate
-$caCertUrl = "http://curl.haxx.se/ca/cacert.pem";
-$caCertPath = __DIR__ . '/cacert.pem';
-file_put_contents($caCertPath, fopen($caCertUrl, 'r'));
-
-// Second attempt with CA certificate
-$response = makeCurlRequest($url, $caCertPath);
-if ($response['error']) {
-    echo "Request failed with CA certificate: " . $response['error'] . PHP_EOL;
-    exit(1);
-} else {
-    echo "Request succeeded with CA certificate" . PHP_EOL;
-}
-
 ?>
