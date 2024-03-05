@@ -35,7 +35,7 @@ function makeCurlRequest($url, $caPath = null) {
     curl_setopt($ch, CURLOPT_STDERR, $verbose);
 
     if ($caPath) {
-        curl_setopt($ch, CURLOPT_CAINFO, $caPath);
+        curl_setopt($ch, CURLOPT_CAPATH, $caPath);
     }
 
     $output = curl_exec($ch);
@@ -96,8 +96,8 @@ if ($isWindows) {
         exit(1);
     }
 
-    // Retry cURL request with downloaded CA certificate
-    $response = makeCurlRequest($url, __DIR__ . DIRECTORY_SEPARATOR . $caFile);
+    // Retry cURL request with downloaded CA certificate path
+    $response = makeCurlRequest($url, dirname(__FILE__));
     unlink($caFile); // Delete downloaded CA certificate
 
     if ($response['error']) {
