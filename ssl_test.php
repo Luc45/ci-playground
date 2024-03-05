@@ -6,6 +6,20 @@ var_dump(ini_get('openssl.cafile'));
 echo "CAPath:\n";
 var_dump(ini_get('openssl.capath'));
 
+function downloadCACertificate($url, $destination) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $data = curl_exec($ch);
+    curl_close($ch);
+
+    if ($data === false) {
+        return false;
+    }
+
+    return file_put_contents($destination, $data) !== false;
+}
+
 function makeCurlRequest($url, $caPath = null) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -43,8 +57,17 @@ function makeCurlRequest($url, $caPath = null) {
 $url = "https://qit.woo.com";
 $shouldFail = isset($argv[1]) ? $argv[1] === 'true' : false;
 
-// First attempt without CA certificate
-$response = makeCurlRequest($url);
+// Download CA certificate
+$caFile = 'cacert.pem';
+if (!downloadCACertificate('http://curl.haxx.se/ca/cacert.pem', $caFile)) {
+    echo "Failed to download CA certificate\n";
+    exit(1);
+}
+
+// Retry cURL request with downloaded CA certificate
+$response = makeCurlRequest($url, $caFile);
+unlink($caFile); // Delete downloaded CA certificate
+
 if ($response['error']) {
     if (!$shouldFail) {
         echo "Request unexpectedly failed without CA certificate: " . $response['error'] . PHP_EOL;
